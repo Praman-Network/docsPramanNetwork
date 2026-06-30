@@ -107,11 +107,23 @@ export default function Home(): ReactNode {
   const [consoleOutput, setConsoleOutput] = useState<string>('');
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [activeStep, setActiveStep] = useState<number>(0);
+  const [isCopied, setIsCopied] = useState<boolean>(false);
 
   // Set console output on tab switch
   useEffect(() => {
     setConsoleOutput(CODE_SNIPPETS[activeTab].output);
+    setIsCopied(false);
   }, [activeTab]);
+
+  const handleCopyCode = async () => {
+    try {
+      await navigator.clipboard.writeText(CODE_SNIPPETS[activeTab].code);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy!', err);
+    }
+  };
 
   const handleRunCode = () => {
     setIsRunning(true);
@@ -179,16 +191,24 @@ export default function Home(): ReactNode {
                   <span className="w-3 h-3 rounded-full bg-green-500/80"></span>
                   <span className="text-[11px] text-slate-500 font-mono ml-2">{CODE_SNIPPETS[activeTab].filename}</span>
                 </div>
-                <button 
-                  onClick={handleRunCode}
-                  disabled={isRunning}
-                  className="px-2.5 py-1 rounded bg-[#00F0FF]/10 text-[#00F0FF] border border-[#00F0FF]/20 hover:bg-[#00F0FF]/20 text-[11px] font-mono flex items-center gap-1 transition-all">
-                  {isRunning ? (
-                    <span className="w-2.5 h-2.5 rounded-full border border-[#00F0FF] border-t-transparent animate-spin"></span>
-                  ) : (
-                    <span>▶ Run Code</span>
-                  )}
-                </button>
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={handleCopyCode}
+                    className="px-2.5 py-1 rounded bg-zinc-800/50 text-slate-300 border border-white/10 hover:bg-zinc-700/50 text-[11px] font-mono flex items-center gap-1 transition-all"
+                    title="Copy code">
+                    {isCopied ? 'Copied!' : 'Copy'}
+                  </button>
+                  <button 
+                    onClick={handleRunCode}
+                    disabled={isRunning}
+                    className="px-2.5 py-1 rounded bg-[#00F0FF]/10 text-[#00F0FF] border border-[#00F0FF]/20 hover:bg-[#00F0FF]/20 text-[11px] font-mono flex items-center gap-1 transition-all">
+                    {isRunning ? (
+                      <span className="w-2.5 h-2.5 rounded-full border border-[#00F0FF] border-t-transparent animate-spin"></span>
+                    ) : (
+                      <span>▶ Run Code</span>
+                    )}
+                  </button>
+                </div>
               </div>
 
               {/* Tab Selector */}
